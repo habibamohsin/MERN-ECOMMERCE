@@ -6,25 +6,59 @@ const ApiError=require("../utils/ApiError");
 // ============================
 
 const createProduct = async (req, res) => {
+console.log("Content-Type:", req.headers["content-type"]);
+console.log("Files:", req.files);
   try {
+    // console.log("========== CREATE PRODUCT ==========");
+    // console.log("BODY:", req.body);
+    // console.log("FILES:", req.files);
+    console.log("========== DEBUG ==========");
+console.log("BODY:", req.body);
+console.log("FILES:", req.files);
 
-    const product = await Product.create(req.body);
+if (req.files && req.files.length > 0) {
+  req.files.forEach((file, index) => {
+    console.log(`FILE ${index + 1}:`, file);
+  });
+}
+    let imagePaths = [];
+
+    if (req.files && req.files.length > 0) {
+      imagePaths = req.files.map((file) => {
+        console.log(file);
+        return file.path;
+      });
+    }
+
+    console.log("IMAGE PATHS:", imagePaths);
+
+    const product = await Product.create({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      discountPrice: req.body.discountPrice,
+      stock: req.body.stock,
+      category: req.body.category,
+      brand: req.body.brand,
+      featured: req.body.featured,
+      isActive: req.body.isActive,
+      images: imagePaths,
+    });
 
     res.status(201).json({
       success: true,
-      message: "Product Created Successfully",
       product,
     });
-
   } catch (error) {
+    console.log(error);
 
     res.status(500).json({
       success: false,
       message: error.message,
     });
-
   }
 };
+
 
 // ============================
 // Get All Products
